@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cobbleverse — Legendary Pokédex</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #f5c842;
+    --gold2: #e0a800;
+    --dark: #0a0b14;
+    --dark2: #10121f;
+    --dark3: #181b2e;
+    --accent: #7b5ea7;
+    --accent2: #a07dd6;
+    --red: #e84040;
+    --blue: #4a9eff;
+    --green: #3ecf8e;
+    --orange: #ff8c42;
+    --ice: #a8e4f0;
+    --shadow: rgba(245,200,66,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: #e8e0f0;
+    font-family: 'Rajdhani', 'Sarabun', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(123,94,167,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(74,158,255,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(245,200,66,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 60px 20px 40px;
+    z-index: 1;
+  }
+
+  .header-subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    opacity: 0.85;
+  }
+
+  header h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold) 0%, #fff8c0 40%, var(--gold2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    line-height: 1.1;
+    letter-spacing: 2px;
+  }
+
+  .header-line {
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto;
+  }
+
+  .header-desc {
+    font-family: 'Sarabun', sans-serif;
+    color: rgba(255,255,255,0.55);
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* Controls */
+  .controls {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto 32px;
+    padding: 0 20px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    max-width: 380px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(245,200,66,0.25);
+    border-radius: 8px;
+    padding: 12px 16px 12px 44px;
+    color: #fff;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .search-wrap input:focus {
+    border-color: var(--gold);
+    background: rgba(245,200,66,0.08);
+  }
+
+  .search-wrap input::placeholder { color: rgba(255,255,255,0.3); }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(245,200,66,0.5);
+    font-size: 1.1rem;
+  }
+
+  .filter-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: rgba(255,255,255,0.65);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--dark);
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: 28px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .stats-bar span {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* Grid */
+  .grid {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+
+  /* Card */
+  .card {
+    background: linear-gradient(145deg, rgba(24,27,46,0.95), rgba(16,18,31,0.9));
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s;
+    cursor: default;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(245,200,66,0.35);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(245,200,66,0.1);
+  }
+
+  .card-accent {
+    height: 3px;
+    width: 100%;
+  }
+
+  .card-body {
+    padding: 18px 20px 20px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .pokemon-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #fff;
+    flex: 1;
+  }
+
+  .pokemon-name small {
+    display: block;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .poke-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .tag {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+
+  .info-rows { display: flex; flex-direction: column; gap: 8px; }
+
+  .info-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .info-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    min-width: 70px;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+
+  .info-value {
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .info-value strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .condition-badge {
+    display: inline-block;
+    background: rgba(245,200,66,0.12);
+    border: 1px solid rgba(245,200,66,0.25);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 0.78rem;
+    color: var(--gold);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    margin: 2px 2px 0 0;
+  }
+
+  /* Category headers */
+  .section-header {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    padding: 0 20px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(245,200,66,0.4), transparent);
+  }
+
+  .no-results {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255,255,255,0.25);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 1.1rem;
+    display: none;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: rgba(245,200,66,0.3); border-radius: 3px; }
+
+  /* Animation */
+  .card { animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.03s; }
+  .card:nth-child(2) { animation-delay: 0.06s; }
+  .card:nth-child(3) { animation-delay: 0.09s; }
+  .card:nth-child(4) { animation-delay: 0.12s; }
+  .card:nth-child(5) { animation-delay: 0.15s; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.8rem; }
+  }
+
+  /* Tooltip for summon items */
+  .summon-item {
+    background: rgba(74,158,255,0.1);
+    border: 1px solid rgba(74,158,255,0.25);
+    color: var(--blue);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 0.78rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    display: inline-block;
+    margin: 2px 2px 0 0;
+  }
+
+  .special-note {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(232,64,64,0.08);
+    border-left: 2px solid var(--red);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.8rem;
+    color: rgba(255,180,180,0.85);
+    font-family: 'Sarabun', sans-serif;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-subtitle">✦ Cobbleverse Modpack Guide ✦</div>
+  <h1>Legendary<br>Pokédex</h1>
+  <div class="header-line"></div>
+  <p class="header-desc">รวมวิธีเจอ Legendary & Mythical ทุกตัวใน Cobbleverse — ครบทุก Gen!</p>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="ค้นหาโปเกมอน..." oninput="filterCards()">
+  </div>
+  <button class="filter-btn active" onclick="filterCategory('all', this)">ทั้งหมด</button>
+  <button class="filter-btn" onclick="filterCategory('legendary', this)">Legendary</button>
+  <button class="filter-btn" onclick="filterCategory('mythical', this)">Mythical</button>
+  <button class="filter-btn" onclick="filterCategory('paradox', this)">Paradox</button>
+  <button class="filter-btn" onclick="filterCategory('ultra', this)">Ultra Beast</button>
+</div>
+
+<div class="stats-bar">
+  แสดง <span id="countDisplay">–</span> จาก <span id="totalDisplay">–</span> ตัว
+</div>
+
+<div class="grid" id="cardGrid"></div>
+<div class="no-results" id="noResults">🔍 ไม่พบโปเกมอนที่ค้นหา</div>
+
+<script>
+const pokemons = [
+  // ══════════════════════════════════════════
+  // GEN 1 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Articuno", altName: "Galarian Articuno", cat: "legendary", gen: 1, icon: "❄️",
+    color: "#a8e4f0", biome: "All Ice Biomes (Ice Spikes, Frozen Peaks, Snowy Plains)", time: "Any", weather: "Rain / Any",
+    summon: ["4× Ice Stones", "Beacon Block"], note: "Galarian form spawn ใน Ice Biomes ทั่วไป" },
+  { name: "Zapdos", altName: "Galarian Zapdos", cat: "legendary", gen: 1, icon: "⚡",
+    color: "#f5c842", biome: "Mountains, Plains, Desert, Windswept Savanna, Badlands", time: "Any", weather: "Thunder",
+    summon: ["4× Thunder Stones", "Beacon Block"], note: "Galarian form spawn ใน Plains ช่วงกลางวัน" },
+  { name: "Moltres", altName: "Galarian Moltres", cat: "legendary", gen: 1, icon: "🔥",
+    color: "#ff8c42", biome: "Badlands / Beach (Ice Spikes, Frozen Peaks ช่วง Rain)", time: "Dawn – Noon", weather: "Clear",
+    summon: ["4× Sun Stones", "Beacon Block"], note: "Galarian form spawn ใน Nether Basalt Delta" },
+  { name: "Mewtwo", altName: "Armored Mewtwo ก็มี", cat: "legendary", gen: 1, icon: "🧬",
+    color: "#a07dd6", biome: "Team Rocket Tower (Badlands) / Resurrection Machine",
+    time: "Any", weather: "Any",
+    summon: ["Ancient DNA + Cloning Catalyst", "Resurrection Machine"],
+    note: "ชนะ Admin Atena ใน Team Rocket Tower → ได้ Cloning Catalyst → craft ใน Fossil Machine | Rocket Tower variant (Meowth Balloon) → Shiny Mewtwo" },
+
+  // ══════════════════════════════════════════
+  // GEN 2 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Raikou", altName: "Legendary Beast", cat: "legendary", gen: 2, icon: "⚡",
+    color: "#f5c842", biome: "Ultra-Rare spawn รอบๆ Burned Tower (ใช้ PokéNav ตามหา)", time: "Any", weather: "Storm",
+    summon: null, note: "ต้อง enable Johto datapack และชนะ Kanto Champion ก่อน" },
+  { name: "Entei", altName: "Legendary Beast", cat: "legendary", gen: 2, icon: "🔥",
+    color: "#e84040", biome: "Ultra-Rare spawn รอบๆ Burned Tower (ใช้ PokéNav ตามหา)", time: "Day", weather: "Clear",
+    summon: null, note: "ต้อง enable Johto datapack และชนะ Kanto Champion ก่อน" },
+  { name: "Suicune", altName: "Legendary Beast", cat: "legendary", gen: 2, icon: "💧",
+    color: "#4a9eff", biome: "Ultra-Rare spawn รอบๆ Burned Tower (ใช้ PokéNav ตามหา)", time: "Any", weather: "Rain",
+    summon: null, note: "ต้อง enable Johto datapack และชนะ Kanto Champion ก่อน" },
+  { name: "Lugia", altName: "Shadow Lugia ก็มี", cat: "legendary", gen: 2, icon: "🌊",
+    color: "#b0c8ff", biome: "Whirl Island (Deep Cold Ocean)",
+    time: "Any", weather: "Any",
+    summon: ["Silver Wing (ชนะ Boss Giovanni ใน Radio Tower)"],
+    note: "ต้อง enable Johto datapack | Shadow Lugia: หา Corrupted Shards + ชนะ Admin Apollo ใน Radio Tower" },
+  { name: "Ho-Oh", altName: null, cat: "legendary", gen: 2, icon: "🌈",
+    color: "#ff8c42", biome: "Bell Tower (Forest Biomes)",
+    time: "Any", weather: "Any",
+    summon: ["Rainbow Wing (ชนะ Old Sage ใน Burned Tower)"],
+    note: "ต้อง enable Johto datapack | Burned Tower อยู่ใน Birch Forest | Bell Tower อยู่ใน Forest Biomes" },
+  { name: "Celebi", altName: null, cat: "mythical", gen: 2, icon: "🌱",
+    color: "#90ee90", biome: "Celebi Shrine (Taiga Biomes)",
+    time: "Any", weather: "Any",
+    summon: ["GS Ball (ชนะ Rival Red)"],
+    note: "ต้อง enable Johto datapack | ชนะ Rival Red รอบๆ Shrine → กด Button ถือ GS Ball" },
+
+  // ══════════════════════════════════════════
+  // GEN 3 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Regirock", altName: "Legendary Titan", cat: "legendary", gen: 3, icon: "🪨",
+    color: "#c8a060", biome: "Lush Desert (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Rock Ore → Pebble Relic (พบใน Dripstone Caves Y:-40~40)"],
+    note: "ต้อง enable Hoenn datapack | /locate structure cobbleverse:legendary/regirock" },
+  { name: "Regice", altName: "Legendary Titan", cat: "legendary", gen: 3, icon: "🧊",
+    color: "#a8e4f0", biome: "Snowy Badlands (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Ice Ore → Cryo Relic (พบใน Frozen Peaks Y:65~120)"],
+    note: "ต้อง enable Hoenn datapack | /locate structure cobbleverse:legendary/regice" },
+  { name: "Registeel", altName: "Legendary Titan", cat: "legendary", gen: 3, icon: "⚙️",
+    color: "#9090a0", biome: "Alpine Highlands (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Steel Ore → Metal Relic (พบใน Badlands Y:-60~0)"],
+    note: "ต้อง enable Hoenn datapack | /locate structure cobbleverse:legendary/registeel" },
+  { name: "Latias", altName: null, cat: "legendary", gen: 3, icon: "🌸",
+    color: "#ff6b9d", biome: "Secret Garden (Deep Lukewarm Ocean ~y200)",
+    time: "Any", weather: "Any",
+    summon: ["Ruby Dew (ชนะ Hoenn Champion Rocco)"],
+    note: "ต้อง enable Hoenn datapack | /locate structure cobbleverse:secret_garden" },
+  { name: "Latios", altName: null, cat: "legendary", gen: 3, icon: "💙",
+    color: "#4a9eff", biome: "Secret Garden (Deep Lukewarm Ocean ~y200)",
+    time: "Any", weather: "Any",
+    summon: ["Sapphire Dew (ชนะ Hoenn Champion Rocco)"],
+    note: "ต้อง enable Hoenn datapack | /locate structure cobbleverse:secret_garden" },
+  { name: "Kyogre", altName: null, cat: "legendary", gen: 3, icon: "🌊",
+    color: "#4a9eff", biome: "Deep Cold Ocean (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Ocean Core (craft จาก items ในโครงสร้าง)"],
+    note: "ต้อง enable Hoenn datapack | พบ Blue Orb ซ่อนอยู่ใน Structure | /locate structure cobbleverse:legendary/kyogre" },
+  { name: "Groudon", altName: null, cat: "legendary", gen: 3, icon: "🌋",
+    color: "#e84040", biome: "Deep Warm Ocean (Custom Structure / Volcano)",
+    time: "Any", weather: "Clear",
+    summon: ["Earth Core (8× Magma Geostone → Blast Furnace)"],
+    note: "ต้อง enable Hoenn datapack | พบ Red Orb ซ่อนอยู่ | /locate structure cobbleverse:legendary/groudon" },
+  { name: "Rayquaza", altName: null, cat: "legendary", gen: 3, icon: "🐉",
+    color: "#3ecf8e", biome: "Sky Pillar (Deep Ocean) / The End (First Time)",
+    time: "Any", weather: "Any",
+    summon: ["Sky Core (Emerald Emblem + Primordial/Desolate/Aether Gem)"],
+    note: "✨ Guaranteed Shiny Lv.100 ครั้งแรกใน The End ต่อผู้เล่น! ต้อง enable Hoenn | ชนะ Ivan/Max/Lyris ใน Sky Pillar" },
+  { name: "Deoxys", altName: "4 รูปแบบ", cat: "legendary", gen: 3, icon: "👾",
+    color: "#ff6e6e", biome: "Small End Islands (Custom Structure — ใน The End)",
+    time: "Any", weather: "Any",
+    summon: null,
+    note: "ต้อง enable Hoenn datapack | ขุดใน Mega Meteorite Blocks หา Summon Item | มี Form-changing Meteorites ให้เปลี่ยนฟอร์ม | /locate structure cobbleverse:mythical/deoxys (ใน End)" },
+  { name: "Jirachi", altName: null, cat: "mythical", gen: 3, icon: "⭐",
+    color: "#fffacd", biome: "Blooming Plateau (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Melodic Tape (หาในถังไม้ด้านบน Structure)"],
+    note: "ต้อง enable Hoenn datapack | /locate structure cobbleverse:mythical/jirachi" },
+
+  // ══════════════════════════════════════════
+  // GEN 4 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Uxie", altName: "Lake Guardian", cat: "legendary", gen: 4, icon: "💛",
+    color: "#f5c842", biome: "Lake Acuity / Glacial Chasm (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Uxie Claw (ชนะ Hisuian Zoroark ใน Cave)"],
+    note: "ต้อง enable Sinnoh datapack | ได้ Knowledge Jewel สำหรับ craft Red Chain" },
+  { name: "Mesprit", altName: "Lake Guardian", cat: "legendary", gen: 4, icon: "💗",
+    color: "#ff9ec8", biome: "Lake Verity / Cherry Grove (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Mesprit Plume (ชนะ Hisuian Goodra ใน Lake)"],
+    note: "ต้อง enable Sinnoh datapack | ได้ Emotion Jewel สำหรับ craft Red Chain" },
+  { name: "Azelf", altName: "Lake Guardian", cat: "legendary", gen: 4, icon: "💙",
+    color: "#4a9eff", biome: "Lake Valor / Arid Highlands (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Azelf Fang (ชนะ Hisuian Overqwil ใน Lake)"],
+    note: "ต้อง enable Sinnoh datapack | ได้ Willpower Jewel สำหรับ craft Red Chain" },
+  { name: "Dialga", altName: null, cat: "legendary", gen: 4, icon: "💎",
+    color: "#4a9eff", biome: "Spear Pillar (Custom Structure — ต้อง enable Sinnoh)",
+    time: "Any", weather: "Any",
+    summon: ["Red Chain + Space-Time Radar"],
+    note: "ต้อง enable Sinnoh datapack | ใช้ Space-Time Radar และ Red Chain ปลุก Statue ที่ Spear Pillar" },
+  { name: "Palkia", altName: null, cat: "legendary", gen: 4, icon: "🔮",
+    color: "#e896b8", biome: "Spear Pillar (Custom Structure — ต้อง enable Sinnoh)",
+    time: "Any", weather: "Any",
+    summon: ["Red Chain + Space-Time Radar"],
+    note: "ต้อง enable Sinnoh datapack | ใช้ Space-Time Radar และ Red Chain ปลุก Statue ที่ Spear Pillar" },
+  { name: "Heatran", altName: null, cat: "legendary", gen: 4, icon: "🔥",
+    color: "#ff6e00", biome: "Nether Basalt Delta (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: null, note: "ต้อง enable Sinnoh datapack" },
+  { name: "Regigigas", altName: null, cat: "legendary", gen: 4, icon: "🗿",
+    color: "#c0b090", biome: "Snowpoint Temple (Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["5× Regi Relics (Cryo + Pebble + Metal + Draco + Electron)"],
+    note: "ต้อง enable Hoenn/Sinnoh datapack | นำ Regi Relics ทั้ง 5 มาทำลาย Seal ที่ Snowpoint Temple" },
+  { name: "Giratina", altName: "Origin / Altered", cat: "legendary", gen: 4, icon: "👻",
+    color: "#8b5e9a", biome: "Distortion World / Turnback Cave (Custom Structure — ใน The End)",
+    time: "Any", weather: "Any",
+    summon: null,
+    note: "ต้อง enable Sinnoh datapack | หา Turnback Cave → ผ่าน Selina's Notes → นำทางใน Broken Gravity | เปลี่ยนฟอร์มด้วย Griseous Core" },
+  { name: "Cresselia", altName: null, cat: "legendary", gen: 4, icon: "🌙",
+    color: "#d4b8ff", biome: "Flower Forest / Cherry Grove / Meadow (กลางวัน)",
+    time: "Day", weather: "Clear",
+    summon: null, note: "ยิ่งมีดอกไม้ธรรมชาติมากยิ่งโอกาสสูง" },
+  { name: "Arceus", altName: null, cat: "legendary", gen: 4, icon: "✨",
+    color: "#fff8c0", biome: "Temple of Sinnoh (Origin Dimension — Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Azure Flute + 18 Plates (วางครบ)"],
+    note: "ต้อง enable Sinnoh datapack | เล่น Azure Flute → ไปถึง Temple of Sinnoh → วาง Plates ทั้ง 18 ชิ้น" },
+  { name: "Darkrai", altName: null, cat: "legendary", gen: 4, icon: "🌑",
+    color: "#6a3d9a", biome: "Deep Dark / Dark Forest", time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Shaymin", altName: "Land / Sky Forme", cat: "mythical", gen: 4, icon: "🌺",
+    color: "#90ee90", biome: "Flower Paradise (Warm Ocean Atoll — Custom Structure)",
+    time: "Day", weather: "Clear",
+    summon: ["Professor Oak's Letter + Gracidea Flowers"],
+    note: "ต้อง enable Sinnoh datapack | Rare Atoll ใน Warm Ocean" },
+  { name: "Manaphy", altName: null, cat: "mythical", gen: 4, icon: "💦",
+    color: "#87ceeb", biome: "Sunken Ruins (Deep Cold Ocean — Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: null, note: "ต้อง enable Sinnoh | หา Manaphy Egg → ฟักใน 5 นาที | Breed Manaphy + Ditto = Phione เท่านั้น" },
+  { name: "Phione", altName: null, cat: "mythical", gen: 4, icon: "💧",
+    color: "#87ceeb", biome: "Ocean Biomes / Breed Manaphy + Ditto",
+    time: "Any", weather: "Any",
+    summon: null, note: "ใน Sinnoh datapack: Breed Manaphy + Ditto ใน Pasture เท่านั้น" },
+
+  // ══════════════════════════════════════════
+  // GEN 5 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Cobalion", altName: "Swords of Justice", cat: "legendary", gen: 5, icon: "⚔️",
+    color: "#4a9eff", biome: "Birch Forest Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Terrakion", altName: "Swords of Justice", cat: "legendary", gen: 5, icon: "🪨",
+    color: "#c8a060", biome: "Birch Forest Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Virizion", altName: "Swords of Justice", cat: "legendary", gen: 5, icon: "🌿",
+    color: "#3ecf8e", biome: "Birch Forest Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Tornadus", altName: null, cat: "legendary", gen: 5, icon: "🌀",
+    color: "#7ddb7d", biome: "Ocean Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Thundurus", altName: null, cat: "legendary", gen: 5, icon: "⛈️",
+    color: "#f5c842", biome: "Plains Biomes", time: "Any", weather: "Storm",
+    summon: null, note: null },
+  { name: "Landorus", altName: null, cat: "legendary", gen: 5, icon: "🌪️",
+    color: "#f5a623", biome: "Savanna Biomes", time: "Day", weather: "Clear",
+    summon: null, note: null },
+  { name: "Reshiram", altName: null, cat: "legendary", gen: 5, icon: "🔥",
+    color: "#ffe0a0", biome: "Dragonspiral Tower / Nether Basalt Delta",
+    time: "Any", weather: "Any",
+    summon: null, note: "Spawn ใน Basalt Delta ในเกม" },
+  { name: "Zekrom", altName: null, cat: "legendary", gen: 5, icon: "⚡",
+    color: "#888", biome: "Dragonspiral Tower / Mountain Biomes / Soul Sand Valley",
+    time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Kyurem", altName: "Black / White Kyurem", cat: "legendary", gen: 5, icon: "🧊",
+    color: "#a8e4f0", biome: "Ice Biomes / Frozen Peaks", time: "Any", weather: "Any",
+    summon: null, note: "Fuse กับ Reshiram/Zekrom ได้ด้วย DNA Splicers" },
+  { name: "Keldeo", altName: "Swords of Justice", cat: "legendary", gen: 5, icon: "💦",
+    color: "#4a9eff", biome: "Ocean / River Biomes (Sword Mountain — Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Meloetta", altName: "Aria / Pirouette", cat: "mythical", gen: 5, icon: "🎵",
+    color: "#c8b8f8", biome: "Plains / Flower Forest / Warped Forest (Nether)",
+    time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Genesect", altName: null, cat: "mythical", gen: 5, icon: "🤖",
+    color: "#6080c0", biome: "Old Growth Spruce Taiga / Dark Forest",
+    time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Victini", altName: null, cat: "mythical", gen: 5, icon: "🔥",
+    color: "#ff8c42", biome: "Savanna / Crimson Forest (Nether)", time: "Day", weather: "Clear",
+    summon: null, note: null },
+
+  // ══════════════════════════════════════════
+  // GEN 6 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Xerneas", altName: null, cat: "legendary", gen: 6, icon: "🌿",
+    color: "#3ecf8e", biome: "Tree of Life (Oak Forest / Flower Forest — Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Galarica Wreath", "Beacon Block"],
+    note: "หรือไปหาที่ Tree of Life Structure | /locate structure cobbleverse:tree_of_life" },
+  { name: "Yveltal", altName: null, cat: "legendary", gen: 6, icon: "🦅",
+    color: "#e84040", biome: "Dark Forest / Nether Wastes", time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Zygarde", altName: "10% / 50% / 100%", cat: "legendary", gen: 6, icon: "🐍",
+    color: "#3ecf8e", biome: "Dripstone Caves (Zygarde Core) / Plains / Sunflower Plains",
+    time: "Any", weather: "Any",
+    summon: null, note: "รวบรวม Zygarde Cells จากทั่วโลก → สร้าง Zygarde 50% / 100%" },
+  { name: "Diancie", altName: null, cat: "legendary", gen: 6, icon: "💎",
+    color: "#ff9ec8", biome: "Jagged Peaks / Cave / Underground", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Hoopa", altName: "Confined / Unbound", cat: "legendary", gen: 6, icon: "🔮",
+    color: "#d4a0ff", biome: "Desert / The End", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Volcanion", altName: null, cat: "legendary", gen: 6, icon: "💧🔥",
+    color: "#e84040", biome: "Volcanic Crater / Ocean Biomes / Basalt Deltas",
+    time: "Any", weather: "Any",
+    summon: null, note: null },
+
+  // ══════════════════════════════════════════
+  // GEN 7 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Tapu Koko", altName: "Guardian Deity", cat: "legendary", gen: 7, icon: "⚡",
+    color: "#f5c842", biome: "Jungle / Bamboo Jungle", time: "Day", weather: "Any",
+    summon: null, note: null },
+  { name: "Tapu Lele", altName: "Guardian Deity", cat: "legendary", gen: 7, icon: "🌸",
+    color: "#ff9ec8", biome: "Cherry Grove / Flower Forest / Meadow (กลางวัน)",
+    time: "Day", weather: "Any",
+    summon: null, note: null },
+  { name: "Tapu Bulu", altName: "Guardian Deity", cat: "legendary", gen: 7, icon: "🌿",
+    color: "#3ecf8e", biome: "Badlands / Savanna (กลางวัน)", time: "Day", weather: "Clear",
+    summon: null, note: null },
+  { name: "Tapu Fini", altName: "Guardian Deity", cat: "legendary", gen: 7, icon: "🌊",
+    color: "#4a9eff", biome: "Beach / Jungle / Bamboo Jungle / Sparse Jungle",
+    time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Cosmog", altName: null, cat: "legendary", gen: 7, icon: "🌌",
+    color: "#c8b8f8", biome: "The End / Sky (กลางคืน)", time: "Night", weather: "Clear",
+    summon: null, note: "Spawn ใน The End ช่วงกลางคืน" },
+  { name: "Cosmoem", altName: null, cat: "legendary", gen: 7, icon: "⭐",
+    color: "#ffe0a0", biome: "The End", time: "Any", weather: "Any",
+    summon: null, note: "Evolve จาก Cosmog Lv.43" },
+  { name: "Solgaleo", altName: null, cat: "legendary", gen: 7, icon: "☀️",
+    color: "#ffe0a0", biome: "The End (กลางวัน) / Cherry Grove / Flower Forest",
+    time: "Day", weather: "Clear",
+    summon: null, note: "Evolve จาก Cosmoem (กลางวัน)" },
+  { name: "Lunala", altName: null, cat: "legendary", gen: 7, icon: "🌙",
+    color: "#8b5e9a", biome: "The End (กลางคืน) / Dark Forest",
+    time: "Night", weather: "Any",
+    summon: null, note: "Evolve จาก Cosmoem (กลางคืน)" },
+  { name: "Necrozma", altName: "Dusk-Mane / Dawn-Wings / Ultra", cat: "legendary", gen: 7, icon: "🌟",
+    color: "#f0e080", biome: "Custom Structure (The End)",
+    time: "Any", weather: "Any",
+    summon: null, note: "Custom Structure เฉพาะ | Ultra Necrozma: กด U ขณะ Target Dusk-Mane/Dawn-Wings ที่มี Ultranecrozium-Z" },
+  { name: "Type: Null", altName: null, cat: "legendary", gen: 7, icon: "🔧",
+    color: "#c0c0a0", biome: "Overworld (Evolve สูง Friendship → Silvally)",
+    time: "Any", weather: "Any",
+    summon: null, note: "Evolve เป็น Silvally ด้วย High Friendship | เปลี่ยน Type ด้วย Memory Items" },
+  { name: "Silvally", altName: null, cat: "legendary", gen: 7, icon: "✨",
+    color: "#c0c0c0", biome: "Evolve จาก Type:Null (High Friendship)",
+    time: "–", weather: "–",
+    summon: null, note: "เปลี่ยน Type ด้วยการถือ RKS Memory Disc ชนิดต่างๆ" },
+  { name: "Zeraora", altName: null, cat: "mythical", gen: 7, icon: "⚡",
+    color: "#f5c842", biome: "Desert Biomes / Savanna", time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Marshadow", altName: null, cat: "mythical", gen: 7, icon: "🥊",
+    color: "#707080", biome: "Deep Dark / Dark Forest / Mangrove Swamp",
+    time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Magearna", altName: null, cat: "mythical", gen: 7, icon: "⚙️",
+    color: "#e896b8", biome: "The End", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Meltan", altName: null, cat: "mythical", gen: 7, icon: "🔩",
+    color: "#b0b0b0", biome: "Overworld (Any) / Cave", time: "Any", weather: "Any",
+    summon: null, note: "Evolve เป็น Melmetal ด้วย Link Cable ใน Cobblemon" },
+  { name: "Melmetal", altName: null, cat: "mythical", gen: 7, icon: "⚙️",
+    color: "#909090", biome: "Evolve จาก Meltan (Link Cable)",
+    time: "–", weather: "–",
+    summon: null, note: "Final evolution ของ Meltan" },
+  { name: "Zarude", altName: null, cat: "mythical", gen: 8, icon: "🐒",
+    color: "#4a7a40", biome: "Jungle / Bamboo Jungle",
+    time: "Day", weather: "Any",
+    summon: null, note: null },
+  { name: "Naganadel", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "🐲",
+    color: "#9b59b6", biome: "Evolve จาก Poipole (เรียน Dragon Move แล้ว Level Up)",
+    time: "–", weather: "–",
+    summon: null, note: "Evolve Poipole โดยให้เรียน Dragon-type move แล้ว Level Up" },
+
+  // ══════════════════════════════════════════
+  // GEN 8 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Zacian", altName: "Hero of Many Battles / Crowned Sword", cat: "legendary", gen: 8, icon: "🗡️",
+    color: "#7dd4ff", biome: "Forest Biomes / Cherry Grove",
+    time: "Any", weather: "Any",
+    summon: null, note: "ถือ Rusted Sword → เปลี่ยนเป็น Crowned Sword Form" },
+  { name: "Zamazenta", altName: "Hero of Many Battles / Crowned Shield", cat: "legendary", gen: 8, icon: "🛡️",
+    color: "#e896b8", biome: "Forest Biomes / Cherry Grove",
+    time: "Any", weather: "Any",
+    summon: null, note: "ถือ Rusted Shield → เปลี่ยนเป็น Crowned Shield Form" },
+  { name: "Eternatus", altName: null, cat: "legendary", gen: 8, icon: "☄️",
+    color: "#9b59b6", biome: "The End (Custom Structure — Eternatus Cocoon)",
+    time: "Any", weather: "Any",
+    summon: null, note: "พบที่ Eternatus Cocoon Structure ใน The End" },
+  { name: "Kubfu", altName: null, cat: "legendary", gen: 8, icon: "🐼",
+    color: "#c8a0a0", biome: "Bamboo Biomes / Bamboo Jungle",
+    time: "Any", weather: "Any",
+    summon: null, note: "Evolve เป็น Urshifu ด้วย Scroll of Water หรือ Scroll of Darkness" },
+  { name: "Urshifu", altName: "Single Strike / Rapid Strike", cat: "legendary", gen: 8, icon: "🥊",
+    color: "#505050", biome: "Evolve จาก Kubfu (Scroll of Water / Darkness)",
+    time: "–", weather: "–",
+    summon: null, note: "Single Strike (Dark) / Rapid Strike (Water)" },
+  { name: "Regieleki", altName: "Legendary Titan", cat: "legendary", gen: 8, icon: "⚡",
+    color: "#f5c842", biome: "Regieleki Cave (Desert — Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Electron Ore → Electron Relic"],
+    note: "⚠️ Split-Decision Temple: เลือก Regieleki หรือ Regidrago ได้เพียงตัวเดียว! (Activate 1 altar → ทำลาย altar อีกอัน)" },
+  { name: "Regidrago", altName: "Legendary Titan", cat: "legendary", gen: 8, icon: "🐲",
+    color: "#3ecf8e", biome: "Regidrago Cave (Snowy/Frozen — Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Dragon Ore → Draco Relic (พบใน Deep Dark)"],
+    note: "⚠️ Split-Decision Temple: เลือก Regieleki หรือ Regidrago ได้เพียงตัวเดียว! | /locate structure cobbleverse:split_decision_temple" },
+  { name: "Glastrier", altName: null, cat: "legendary", gen: 8, icon: "🐎",
+    color: "#a8e4f0", biome: "Custom Structure (Snowy Biomes)",
+    time: "Any", weather: "Any",
+    summon: null, note: "Custom Structure เฉพาะ — ดูใน Customs Structure" },
+  { name: "Spectrier", altName: null, cat: "legendary", gen: 8, icon: "👻",
+    color: "#8b5e9a", biome: "Dark Forest / Deep Dark (Custom Structure)",
+    time: "Night", weather: "Any",
+    summon: null, note: "Custom Structure เฉพาะ" },
+  { name: "Calyrex", altName: "Ice Rider / Shadow Rider", cat: "legendary", gen: 8, icon: "👑",
+    color: "#b8d4ff", biome: "Custom Structure",
+    time: "–", weather: "–",
+    summon: null, note: "ต้องหา Custom Structure เฉพาะ | Fuse กับ Glastrier หรือ Spectrier" },
+  { name: "Enamorus", altName: null, cat: "legendary", gen: 8, icon: "💕",
+    color: "#ff9ec8", biome: "Plains / Sunflower Plains / Meadow",
+    time: "Day", weather: "Any",
+    summon: null, note: "Incarnate Form → Therian Form ด้วย Reveal Glass" },
+
+  // ══════════════════════════════════════════
+  // GEN 9 LEGENDARY
+  // ══════════════════════════════════════════
+  { name: "Koraidon", altName: null, cat: "legendary", gen: 9, icon: "🦎",
+    color: "#e84040", biome: "Badlands / Savanna (กลางวัน)",
+    time: "Day", weather: "Clear",
+    summon: null, note: "Spawn ใน Badlands / Savanna" },
+  { name: "Miraidon", altName: null, cat: "legendary", gen: 9, icon: "🤖",
+    color: "#7dd4ff", biome: "The End (กลางคืน) / Night: Dark Forest",
+    time: "Night", weather: "Any",
+    summon: null, note: "Spawn ใน The End ช่วงกลางคืน" },
+  { name: "Wo-Chien", altName: "Treasures of Ruin", cat: "legendary", gen: 9, icon: "🐌",
+    color: "#3ecf8e", biome: "Forest / Cherry Grove",
+    time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Chien-Pao", altName: "Treasures of Ruin", cat: "legendary", gen: 9, icon: "🗡️",
+    color: "#a8e4f0", biome: "Ice Biomes", time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Ting-Lu", altName: "Treasures of Ruin", cat: "legendary", gen: 9, icon: "🏺",
+    color: "#c8a060", biome: "Mountains / Plains / Desert / Windswept Savanna / Badlands",
+    time: "Any", weather: "Thunder",
+    summon: null, note: null },
+  { name: "Chi-Yu", altName: "Treasures of Ruin", cat: "legendary", gen: 9, icon: "🔥",
+    color: "#ff5555", biome: "Nether Basalt Delta", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Ogerpon", altName: "4 Masks", cat: "legendary", gen: 9, icon: "🎭",
+    color: "#3ecf8e", biome: "Lush Caves", time: "Any", weather: "Any",
+    summon: null, note: "เปลี่ยนหน้ากากได้ 4 แบบ: Teal / Wellspring / Hearthflame / Cornerstone" },
+  { name: "Okidogi", altName: "Loyal Three", cat: "legendary", gen: 9, icon: "🐕",
+    color: "#c03028", biome: "Plains / Village / Savanna (กลางวัน)",
+    time: "Day", weather: "Any",
+    summon: null, note: "Poison/Fighting | อยู่รวมกับ Munkidori และ Fezandipiti | ถูก Pecharunt ควบคุม" },
+  { name: "Munkidori", altName: "Loyal Three", cat: "legendary", gen: 9, icon: "🐒",
+    color: "#9b59b6", biome: "Jungle / Forest / Plains (กลางวัน)",
+    time: "Day", weather: "Any",
+    summon: null, note: "Poison/Psychic | อยู่รวมกับ Okidogi และ Fezandipiti | ถูก Pecharunt ควบคุม" },
+  { name: "Fezandipiti", altName: "Loyal Three", cat: "legendary", gen: 9, icon: "🦚",
+    color: "#ff69b4", biome: "Plains / Meadow / Flower Forest (กลางวัน)",
+    time: "Day", weather: "Any",
+    summon: null, note: "Poison/Fairy | อยู่รวมกับ Okidogi และ Munkidori | ถูก Pecharunt ควบคุม" },
+  { name: "Gouging Fire", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "🔥",
+    color: "#e84040", biome: "Nether / Basalt Delta / Volcanic",
+    time: "Any", weather: "Any",
+    summon: null, note: "Past Paradox ของ Entei" },
+  { name: "Raging Bolt", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "⚡",
+    color: "#f5c842", biome: "Plains Biomes", time: "Any", weather: "Storm",
+    summon: null, note: null },
+  { name: "Iron Boulder", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "🪨",
+    color: "#909090", biome: "Cave / Mountain Biomes",
+    time: "Any", weather: "Any",
+    summon: null, note: "Future Paradox ของ Terrakion" },
+  { name: "Iron Crown", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "👑",
+    color: "#8080ff", biome: "Plains / Meadow (ใกล้ Lightning Rod)",
+    time: "Any", weather: "Storm",
+    summon: null, note: "Future Paradox ของ Cobalion" },
+  { name: "Terapagos", altName: "Normal / Terastal / Stellar", cat: "legendary", gen: 9, icon: "🌟",
+    color: "#c8b8f8", biome: "The End (Main Island)",
+    time: "Any", weather: "Any",
+    summon: null, note: "Spawn ใน The End" },
+
+  // ══════════════════════════════════════════
+  // GEN 1 MYTHICAL
+  // ══════════════════════════════════════════
+  { name: "Mew", altName: null, cat: "mythical", gen: 1, icon: "🌸",
+    color: "#ffb6c1", biome: "Mew's Temple (Jungle Biome — Custom Structure)",
+    time: "Any", weather: "Any",
+    summon: ["Origin Fossil (Ancient Origin Ball + Ancient DNA + 5× Fossils)", "Mew's Altar"],
+    note: "Ancient Origin Ball: ชนะ Champion Blue & Champion Lance | Ancient DNA: ชนะ Gym Leader Giovanni หรือหาในหีบใน Mew's Temple | /locate structure cobbleverse:mythical/mew" },
+
+  // ══════════════════════════════════════════
+  // PARADOX
+  // ══════════════════════════════════════════
+  { name: "Brute Bonnet", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "🍄",
+    color: "#c8a04a", biome: "Jungle Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Flutter Mane", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "👻",
+    color: "#e896b8", biome: "Swamp Biomes", time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Great Tusk", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "🐘",
+    color: "#c8a04a", biome: "Savanna Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Iron Bundle", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "🤖",
+    color: "#a8e4f0", biome: "Ice Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Iron Thorns", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "⚡",
+    color: "#c0c0c0", biome: "Mountain Biomes (ใกล้ Lightning Rod)", time: "Any", weather: "Storm",
+    summon: null, note: "ต้องอยู่ใกล้ Lightning Rod" },
+  { name: "Iron Moth", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "🦋",
+    color: "#ff8c42", biome: "Swamp Biomes", time: "Day", weather: "Any",
+    summon: null, note: null },
+  { name: "Iron Valiant", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "⚔️",
+    color: "#9b59b6", biome: "Plains Biomes (ใกล้ Lightning Rod)", time: "Any", weather: "Storm",
+    summon: null, note: "ต้องอยู่ใกล้ Lightning Rod" },
+  { name: "Roaring Moon", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "🌙",
+    color: "#4a3a8a", biome: "Mountain Biomes", time: "Night", weather: "Any",
+    summon: null, note: null },
+  { name: "Scream Tail", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "🎀",
+    color: "#ff9ec8", biome: "Flower Biomes / Cherry Grove / Meadow", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Slither Wing", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "🦎",
+    color: "#f5a623", biome: "Desert Biomes", time: "Day", weather: "Clear",
+    summon: null, note: null },
+  { name: "Walking Wake", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "🦕",
+    color: "#4a9eff", biome: "Tera Dens — Water Type (ใต้ดิน)",
+    time: "Any", weather: "Any",
+    summon: null,
+    note: "ต้องชนะ/จับ Rayquaza ก่อน → คุยกับ Shady Villager ใน Dark Forest" },
+  { name: "Iron Leaves", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "🌿",
+    color: "#3ecf8e", biome: "Tera Dens — Psychic Type (ใต้ดิน)",
+    time: "Any", weather: "Any",
+    summon: null,
+    note: "ต้องชนะ/จับ Rayquaza ก่อน → คุยกับ Shady Villager | /locate structure cobbleverse:tera_den_psychic" },
+  { name: "Sandy Shocks", altName: "Past Paradox", cat: "paradox", gen: 9, icon: "⚡",
+    color: "#c8a060", biome: "Desert Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Iron Treads", altName: "Future Paradox", cat: "paradox", gen: 9, icon: "🔩",
+    color: "#808080", biome: "Desert Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Ancient Paradox (อื่นๆ)", altName: "Past/Future Paradox remaining", cat: "paradox", gen: 9, icon: "🌀",
+    color: "#6060a0", biome: "ขึ้นอยู่กับตัว — ดู PokéNav ในเกม",
+    time: "Any", weather: "Any",
+    summon: null, note: "Paradox ที่เหลือ Spawn ตามสภาพ Biome/เวลา/อากาศใกล้เคียงกัน ใช้ PokéNav ตรวจสอบ" },
+
+  // ══════════════════════════════════════════
+  // ULTRA BEASTS
+  // ══════════════════════════════════════════
+  { name: "Nihilego", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "🧪",
+    color: "#e0d0ff", biome: "Swamp Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Buzzwole", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "💪",
+    color: "#e84040", biome: "Jungle / Bamboo Jungle", time: "Day", weather: "Any",
+    summon: null, note: null },
+  { name: "Pheromosa", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "🦋",
+    color: "#f0f0f0", biome: "Beach / Jungle", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Xurkitree", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "⚡",
+    color: "#f5c842", biome: "The End (ใกล้ Lightning Rod)", time: "Any", weather: "Any",
+    summon: null, note: "ต้องอยู่ใกล้ Lightning Rod ใน The End" },
+  { name: "Celesteela", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "🚀",
+    color: "#8080a0", biome: "End Highlands", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Kartana", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "📄",
+    color: "#c8c840", biome: "Bamboo Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Guzzlord", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "🌑",
+    color: "#4a3a8a", biome: "The End", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Poipole", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "💜",
+    color: "#9b59b6", biome: "Swamp / Dark Forest", time: "Night", weather: "Any",
+    summon: null, note: "Evolve เป็น Naganadel ด้วย Dragon Scale" },
+  { name: "Stakataka", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "🧱",
+    color: "#808060", biome: "Desert / Cave", time: "Any", weather: "Any",
+    summon: null, note: null },
+  { name: "Blacephalon", altName: "Ultra Beast", cat: "ultra", gen: 7, icon: "💥",
+    color: "#ff6e6e", biome: "Desert Biomes", time: "Any", weather: "Any",
+    summon: null, note: null },
+];
+
+// Deduplicate (Diancie appeared twice - remove mythical duplicate)
+const seen = new Set();
+const data = pokemons.filter(p => {
+  const key = p.name + p.cat;
+  if (seen.has(key)) return false;
+  seen.add(key);
+  return true;
+});
+
+const catColors = {
+  legendary: { bg: 'rgba(245,200,66,0.12)', border: 'rgba(245,200,66,0.4)', text: '#f5c842', label: 'Legendary' },
+  mythical:  { bg: 'rgba(160,125,214,0.15)', border: 'rgba(160,125,214,0.4)', text: '#c09aff', label: 'Mythical' },
+  paradox:   { bg: 'rgba(62,207,142,0.1)', border: 'rgba(62,207,142,0.35)', text: '#3ecf8e', label: 'Paradox' },
+  ultra:     { bg: 'rgba(74,158,255,0.1)', border: 'rgba(74,158,255,0.35)', text: '#4a9eff', label: 'Ultra Beast' },
+};
+
+let activeFilter = 'all';
+
+function renderCards(items) {
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  
+  if (items.length === 0) {
+    document.getElementById('noResults').style.display = 'block';
+  } else {
+    document.getElementById('noResults').style.display = 'none';
+  }
+
+  document.getElementById('countDisplay').textContent = items.length;
+  document.getElementById('totalDisplay').textContent = data.length;
+
+  items.forEach((p, i) => {
+    const c = catColors[p.cat];
+    const accentGrad = `linear-gradient(90deg, ${p.color}, ${c.text})`;
+    
+    const tagsHtml = `
+      <div class="tags">
+        <span class="tag" style="background:${c.bg};border-color:${c.border};color:${c.text}">${c.label}</span>
+        <span class="tag" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.5)">Gen ${p.gen}</span>
+      </div>`;
+
+    const summonHtml = p.summon ? `
+      <div class="info-row">
+        <span class="info-label">วิธีเรียก</span>
+        <span class="info-value">${p.summon.map(s => `<span class="summon-item">${s}</span>`).join('')}</span>
+      </div>` : '';
+
+    const noteHtml = p.note ? `<div class="special-note">⚠️ ${p.note}</div>` : '';
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-cat', p.cat);
+    card.setAttribute('data-name', p.name.toLowerCase());
+    card.style.animationDelay = `${i * 0.03}s`;
+    card.innerHTML = `
+      <div class="card-accent" style="background:${accentGrad}"></div>
+      <div class="card-body">
+        <div class="card-header">
+          <div class="pokemon-name">
+            ${p.name}
+            ${p.altName ? `<small>${p.altName}</small>` : ''}
+          </div>
+          <div class="poke-icon" style="background:rgba(${hexToRgb(p.color)},0.15)">
+            ${p.icon}
+          </div>
+        </div>
+        ${tagsHtml}
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-label">Biome</span>
+            <span class="info-value"><strong>${p.biome}</strong></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">เวลา</span>
+            <span class="info-value">${p.time}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">อากาศ</span>
+            <span class="info-value">${p.weather}</span>
+          </div>
+          ${summonHtml}
+        </div>
+        ${noteHtml}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const n = parseInt(hex, 16);
+  return `${(n>>16)&255},${(n>>8)&255},${n&255}`;
+}
+
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  return data.filter(p => {
+    const matchCat = activeFilter === 'all' || p.cat === activeFilter;
+    const matchSearch = p.name.toLowerCase().includes(q) || (p.altName||'').toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+}
+
+function filterCards() {
+  renderCards(getFiltered());
+}
+
+function filterCategory(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCards();
+}
+
+renderCards(data);
+</script>
+</body>
+</html>
